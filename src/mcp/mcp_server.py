@@ -353,6 +353,12 @@ class McpServer:
         bazi_manager = get_bazi_manager()
         bazi_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
 
+        # 添加 Pisloth 机器人控制工具
+        from src.mcp.tools.pisloth import get_pisloth_manager
+
+        pisloth_manager = get_pisloth_manager()
+        pisloth_manager.init_tools(self.add_tool, PropertyList, Property, PropertyType)
+
         # 恢复原有工具
         self.tools.extend(original_tools)
 

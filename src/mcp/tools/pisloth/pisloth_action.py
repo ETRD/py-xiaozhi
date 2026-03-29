@@ -97,7 +97,7 @@ def do_action(action_type="stop"):
         reset_servos()
     else:
         # 默认动作：跳舞
-        do_action("跳舞")
+        do_action("dance")
 
 def reset_servos():
     left_sole_servo.reset()  # Reset to the center position.
