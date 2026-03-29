@@ -11,10 +11,10 @@ from robot_hat import (
 
 setup_env_vars()  # autosetup environment, e.g.: GPIOZERO_PIN_FACTORY, ROBOT_HAT_MOCK_SMBUS etc
 
-led = Pin("LED", Pin.OUT)
-led.value(1)  # Turn on the LED to indicate the program is running.
-time.sleep(1)  # Wait for a moment to ensure the LED state is visible before proceeding.
-led.value(0)  # Turn off the LED after the delay.
+#led = Pin("LED", Pin.OUT)
+#led.value(1)  # Turn on the LED to indicate the program is running.
+#time.sleep(1)  # Wait for a moment to ensure the LED state is visible before proceeding.
+#led.value(0)  # Turn off the LED after the delay.
 
 mcu_rst = Pin("MCURST", Pin.OUT)
 mcu_rst.value(0)  # Hold the MCU in reset
@@ -80,16 +80,25 @@ right_sole_servo = ServoService(
 )
 driver.set_pwm_freq(pwm_config.freq)
 
-for angle in range(0, -46, -1):
-    left_sole_servo.set_angle(-angle)
-    right_sole_servo.set_angle(angle)
-    time.sleep(0.02)  # Wait for a moment to allow the servos to reach the position.
+def do_action(action_type="stop"):
+    if action_type == "dance":
+        # 执行跳舞动作：原有的循环
+        for angle in range(0, -46, -1):
+            left_sole_servo.set_angle(-angle)
+            right_sole_servo.set_angle(angle)
+            time.sleep(0.02)  # Wait for a moment to allow the servos to reach the position.
 
-for angle in range(-45, 1, 1):
-    left_sole_servo.set_angle(-angle)
-    right_sole_servo.set_angle(angle)
-    time.sleep(0.02)  # Wait for a moment to allow the servos to reach the position.
+        for angle in range(-45, 1, 1):
+            left_sole_servo.set_angle(-angle)
+            right_sole_servo.set_angle(angle)
+            time.sleep(0.02)  # Wait for a moment to allow the servos to reach the position.
+    elif action_type == "stop":
+        # 执行停止动作：重置舵机到中心位置
+        reset_servos()
+    else:
+        # 默认动作：跳舞
+        do_action("跳舞")
 
-time.sleep(2)
-left_sole_servo.reset()  # Reset to the center position.
-right_sole_servo.reset()  # Reset to the center position.
+def reset_servos():
+    left_sole_servo.reset()  # Reset to the center position.
+    right_sole_servo.reset()  # Reset to the center position.
