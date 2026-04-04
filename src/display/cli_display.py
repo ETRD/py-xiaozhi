@@ -8,12 +8,16 @@ import tty
 from collections import deque
 from typing import Callable, Optional
 
+from robot_hat import Pin, setup_env_vars
 from src.display.base_display import BaseDisplay
 
 
 class CliDisplay(BaseDisplay):
     def __init__(self):
         super().__init__()
+        setup_env_vars()
+        self.led_red = Pin("D0", Pin.OUT)
+        self.led_green = Pin("D2", Pin.OUT)
         self.running = True
         self._use_ansi = sys.stdout.isatty()
         self._loop = None
@@ -54,6 +58,19 @@ class CliDisplay(BaseDisplay):
         self._log_lines: deque[str] = deque(maxlen=6)
         self._install_log_handler()
 
+        # LED 闪烁任务
+        self._blink_task = None
+
+    async def _blink_red_led(self):
+        """
+        红灯闪烁任务，5Hz 频率。
+        """
+        while True:
+            self.led_red.on()
+            await asyncio.sleep(0.1)
+            self.led_red.off()
+            await asyncio.sleep(0.1)
+
     async def set_callbacks(
         self,
         press_callback: Optional[Callable] = None,
@@ -86,6 +103,28 @@ class CliDisplay(BaseDisplay):
         self._dash_status = status
         self._dash_connected = bool(connected)
         await self._render_dashboard()
+
+        # 控制 LED
+        if self._blink_task and not self._blink_task.done():
+            self._blink_task.cancel()
+            try:
+                await self._blink_task
+            except asyncio.CancelledError:
+                pass
+
+        if "待命" in status:
+            self.led_red.off()
+            self.led_green.off()
+        elif "聆听中" in status:
+            self.led_red.off()
+            self.led_green.on()
+        elif "说话中" in status:
+            self.led_green.off()
+            self._blink_task = asyncio.create_task(self._blink_red_led())
+        else:
+            # 默认状态，灯灭
+            self.led_red.off()
+            self.led_green.off()
 
     async def update_text(self, text: str):
         """
@@ -219,6 +258,16 @@ class CliDisplay(BaseDisplay):
         关闭CLI显示.
         """
         self.running = False
+        # 停止 LED 闪烁任务
+        if self._blink_task and not self._blink_task.done():
+            self._blink_task.cancel()
+            try:
+                await self._blink_task
+            except asyncio.CancelledError:
+                pass
+        # 关闭 LED
+        self.led_red.off()
+        self.led_green.off()
         print("\n正在关闭应用...\n")
 
     def _print_help(self):
