@@ -34,6 +34,51 @@ driver = PWMFactory.create_pwm_driver(
     config=pwm_config,
 )
 
+left_leg_servo = ServoService(
+    servo=Servo(
+        driver=driver,
+        channel="P0",  # Either an integer or a string with a numeric suffix.
+        # The parameters below are optional and have default values:
+        # The minimum and maximum logical angles (in degrees) that can be commanded to the servo.
+        min_angle=-90.0,
+        max_angle=90.0,
+        # The minimum and maximum pulse widths (in microseconds) corresponding to the servo's physical movement.
+        min_pulse=500,
+        max_pulse=2500,
+        # The minimum and maximum physical angles (in degrees) that the servo can achieve.
+        # These values are used to map the logical angle to the physical angle.
+        real_min_angle=-90.0,
+        real_max_angle=90.0,
+    ),
+    name="steering",  # A human-readable name for the servo (useful for debugging/logging).
+    min_angle=-90,
+    max_angle=90,
+    calibration_mode=ServoCalibrationMode.SUM,
+    calibration_offset=0,
+)
+right_leg_servo = ServoService(
+    servo=Servo(
+        driver=driver,
+        channel="P2",  # Either an integer or a string with a numeric suffix.
+        # The parameters below are optional and have default values:
+        # The minimum and maximum logical angles (in degrees) that can be commanded to the servo.
+        min_angle=-90.0,
+        max_angle=90.0,
+        # The minimum and maximum pulse widths (in microseconds) corresponding to the servo's physical movement.
+        min_pulse=500,
+        max_pulse=2500,
+        # The minimum and maximum physical angles (in degrees) that the servo can achieve.
+        # These values are used to map the logical angle to the physical angle.
+        real_min_angle=-90.0,
+        real_max_angle=90.0,
+    ),
+    name="steering",  # A human-readable name for the servo (useful for debugging/logging).
+    min_angle=-90,
+    max_angle=90,
+    calibration_mode=ServoCalibrationMode.SUM,
+    calibration_offset=-8,
+)
+
 left_sole_servo = ServoService(
     servo=Servo(
         driver=driver,
@@ -86,19 +131,38 @@ def do_action(action_type="stop"):
         for angle in range(0, -46, -1):
             left_sole_servo.set_angle(-angle)
             right_sole_servo.set_angle(angle)
-            time.sleep(0.02)  # Wait for a moment to allow the servos to reach the position.
+            time.sleep(0.02)
 
         for angle in range(-45, 1, 1):
             left_sole_servo.set_angle(-angle)
             right_sole_servo.set_angle(angle)
-            time.sleep(0.02)  # Wait for a moment to allow the servos to reach the position.
+            time.sleep(0.02)
+    if action_type == "forward":
+        for angle in range(0, -46, -1):
+            left_sole_servo.set_angle(-angle)
+            time.sleep(0.02)
+        for angle in range(0, -46, -1):
+            left_leg_servo.set_angle(angle)
+            time.sleep(0.02)
+        for angle in range(0, -46, -1):
+            right_leg_servo.set_angle(angle)
+            time.sleep(0.02)                    
     elif action_type == "stop":
         # 执行停止动作：重置舵机到中心位置
         reset_servos()
     else:
         # 默认动作：跳舞
-        do_action("dance")
+        reset_servos()
 
 def reset_servos():
-    left_sole_servo.reset()  # Reset to the center position.
-    right_sole_servo.reset()  # Reset to the center position.
+    left_sole_servo.reset()
+    right_sole_servo.reset()
+    left_leg_servo.reset()
+    right_leg_servo.reset()
+
+if __name__ == "__main__":
+    # 测试函数
+    print("开始测试舵机动作...")
+    reset_servos()
+    #do_action("forward")
+    print("测试完成。")

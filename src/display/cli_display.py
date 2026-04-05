@@ -17,7 +17,9 @@ class CliDisplay(BaseDisplay):
         super().__init__()
         setup_env_vars()
         self.led_red = Pin("D0", Pin.OUT)
+        self.led_blue = Pin("D1", Pin.OUT)
         self.led_green = Pin("D2", Pin.OUT)
+        self.led_yellow = Pin("D3", Pin.OUT)
         self.running = True
         self._use_ansi = sys.stdout.isatty()
         self._loop = None
@@ -67,9 +69,9 @@ class CliDisplay(BaseDisplay):
         """
         while True:
             self.led_red.on()
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.2)
             self.led_red.off()
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.2)
 
     async def set_callbacks(
         self,
@@ -112,6 +114,11 @@ class CliDisplay(BaseDisplay):
             except asyncio.CancelledError:
                 pass
 
+        if connected is True:
+            self.led_yellow.on()
+        else:
+            self.led_yellow.off()
+
         if "待命" in status:
             self.led_red.off()
             self.led_green.off()
@@ -125,6 +132,7 @@ class CliDisplay(BaseDisplay):
             # 默认状态，灯灭
             self.led_red.off()
             self.led_green.off()
+            self.led_blue.off()
 
     async def update_text(self, text: str):
         """
@@ -268,6 +276,8 @@ class CliDisplay(BaseDisplay):
         # 关闭 LED
         self.led_red.off()
         self.led_green.off()
+        self.led_yellow.off()
+        self.led_blue.off()
         print("\n正在关闭应用...\n")
 
     def _print_help(self):
