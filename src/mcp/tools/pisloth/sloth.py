@@ -1,6 +1,8 @@
 from robot_hat import SunfounderRobot
-from robot_hat import Pin
+from robot_hat import Pin, setup_env_vars
 import time
+
+setup_env_vars()
 
 class Sloth(SunfounderRobot):
     move_list = {
@@ -162,6 +164,7 @@ mcu_rst = Pin("MCURST", Pin.OUT)
 mcu_rst.value(0)  # Hold the MCU in reset
 time.sleep(0.1)  # Wait for a moment to ensure the reset is registered
 mcu_rst.value(1)  # Release the reset to allow the MCU to boot up
+time.sleep(0.1)  # Wait for a moment to ensure the reset is registered
 
 config_file = '/home/launcher/.config/robot-hat-pypi/robot-hat.conf'
 sloth = Sloth([0,1,2,3], config_file)
