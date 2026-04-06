@@ -179,6 +179,8 @@ def pisloth_do_action(action_type='stand'):
         sloth.do_action('stomp right', 1, 70)
         sloth.do_action('stomp left', 1, 70)
         sloth.do_action('stand', 1, 70)
+    else:
+        sloth.do_action('stand', 1, 40)
 
 
 
@@ -212,4 +214,4 @@ if __name__=="__main__":
     #sloth.do_action('stand', 1, 40)
     #time.sleep(1)
     pisloth_do_action('dance')
-    
+
