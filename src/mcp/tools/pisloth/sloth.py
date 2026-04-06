@@ -157,17 +157,59 @@ class Sloth(SunfounderRobot):
         if action_name not in self.move_list.keys():
             self.move_list[action_name] = action_list
 
+# reset mcu first
+mcu_rst = Pin("MCURST", Pin.OUT)
+mcu_rst.value(0)  # Hold the MCU in reset
+time.sleep(0.1)  # Wait for a moment to ensure the reset is registered
+mcu_rst.value(1)  # Release the reset to allow the MCU to boot up
+
+config_file = '/home/launcher/.config/robot-hat-pypi/robot-hat.conf'
+sloth = Sloth([0,1,2,3], config_file)
+sloth.set_offset([0,0,-8,-5])
+sloth.calibration()
+
+def pisloth_do_action(action_type='stand'):
+    if action_type == 'forward':
+        sloth.do_action('forward', 1, 40)
+        sloth.do_action('stand', 1, 40)
+    elif action_type == 'backward':
+        sloth.do_action('backward', 1, 40)
+        sloth.do_action('stand', 1, 40)
+    elif action_type == 'dance':
+        sloth.do_action('stomp right', 1, 70)
+        sloth.do_action('stomp left', 1, 70)
+        sloth.do_action('stand', 1, 70)
+
+
+
 if __name__=="__main__":
 
-    # reset mcu first
-    mcu_rst = Pin("MCURST", Pin.OUT)
-    mcu_rst.value(0)  # Hold the MCU in reset
-    time.sleep(0.1)  # Wait for a moment to ensure the reset is registered
-    mcu_rst.value(1)  # Release the reset to allow the MCU to boot up
-
-    config_file = '/home/launcher/.config/robot-hat-pypi/robot-hat.conf'
-    sloth = Sloth([0,1,2,3], config_file)
-    sloth.set_offset([0,0,-8,-5])
-    sloth.calibration()
-    while 1:
-        sloth.do_action('forward', 1, 40)
+    ## reset mcu first
+    #mcu_rst = Pin("MCURST", Pin.OUT)
+    #mcu_rst.value(0)  # Hold the MCU in reset
+    #time.sleep(0.1)  # Wait for a moment to ensure the reset is registered
+    #mcu_rst.value(1)  # Release the reset to allow the MCU to boot up
+#
+    #config_file = '/home/launcher/.config/robot-hat-pypi/robot-hat.conf'
+    #sloth = Sloth([0,1,2,3], config_file)
+    #sloth.set_offset([0,0,-8,-5])
+    #sloth.calibration()
+    ##while 1:
+    #sloth.do_action('forward', 1, 40)
+    #sloth.do_action('stand', 1, 40)
+    #time.sleep(1)
+    #sloth.do_action('backward', 1, 40)
+    #sloth.do_action('stand', 1, 40)
+    #time.sleep(1)
+    #sloth.do_action('open', 1, 40)
+    #time.sleep(1)
+    #sloth.do_action('close', 1, 40)
+    #time.sleep(1)
+    #sloth.do_action('stomp right', 1, 40)
+    #time.sleep(1)
+    #sloth.do_action('stomp left', 1, 40)
+    #time.sleep(1)
+    #sloth.do_action('stand', 1, 40)
+    #time.sleep(1)
+    pisloth_do_action('dance')
+    
